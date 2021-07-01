@@ -1,0 +1,16 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Perfectris", "Perfectris\Perfectris.csproj", "{22991402-74F8-424D-837F-6DCEEC9C3926}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{22991402-74F8-424D-837F-6DCEEC9C3926}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{22991402-74F8-424D-837F-6DCEEC9C3926}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{22991402-74F8-424D-837F-6DCEEC9C3926}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{22991402-74F8-424D-837F-6DCEEC9C3926}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
