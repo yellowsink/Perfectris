@@ -3,8 +3,31 @@ namespace Perfectris
 	public class GameState
 	{
 		/// <summary>
-		/// How many ticks offset from 0 before the piece move cycle begins
+		/// How many ticks offset from 0 before the DAS cycle begins
 		/// </summary>
-		public int PieceMoveTickOffset;
+		public int DasTickOffset;
+
+		/// <summary>
+		/// How many ticks left until the piece locks down
+		/// </summary>
+		public int LockDownTimer;
+
+		/// <summary>
+		/// Has the player used Hold this turn?
+		/// </summary>
+		public bool HasHeldThisTurn;
+		/// <summary>
+		/// What has the player got held?
+		/// </summary>
+		public TetrominoType? HeldPiece;
+		/// <summary>
+		/// Convenience value for if a piece is held
+		/// </summary>
+		public bool IsPieceHeld => HeldPiece.HasValue;
+
+		/// <summary>
+		/// State of inputs
+		/// </summary>
+		public InputState InputState = new();
 	}
 }

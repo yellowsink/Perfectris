@@ -4,22 +4,22 @@ using System.Linq;
 
 namespace Perfectris
 {
-	public class PieceGenerator
+	public class TetrominoGenerator
 	{
-		private Piece[] _bag;
-		private Piece[] _nextBag;
+		private TetrominoType[] _bag;
+		private TetrominoType[] _nextBag;
 		private int     bagIndex;
 		private bool    _use7Bag;
 		private Random  _random = new();
 
-		public PieceGenerator(bool use7Bag = true)
+		public TetrominoGenerator(bool use7Bag = true)
 		{
 			_use7Bag = use7Bag;
 			_nextBag = GenerateBag(use7Bag);
 			AdvanceBags(use7Bag);
 		}
 
-		public Piece[] GetQueue()
+		public TetrominoType[] GetQueue()
 		{
 			if (bagIndex == 7) AdvanceBags(_use7Bag);
 			// eg index = 2  /- skip first 2           /- take 2 from the next bag to fill in
@@ -32,13 +32,13 @@ namespace Perfectris
 			_nextBag = GenerateBag(use7Bag);
 		}
 
-		private Piece[] GenerateBag(bool use7Bag)
+		private TetrominoType[] GenerateBag(bool use7Bag)
 		{
-			var working = new List<Piece>();
+			var working = new List<TetrominoType>();
 
 			if (use7Bag)
 			{
-				var allPieces = new List<Piece> { Piece.I, Piece.J, Piece.L, Piece.O, Piece.S, Piece.Z, Piece.T };
+				var allPieces = new List<TetrominoType> { TetrominoType.I, TetrominoType.J, TetrominoType.L, TetrominoType.O, TetrominoType.S, TetrominoType.Z, TetrominoType.T };
 				for (var i = 0; i < 7; i++)
 				{
 					var randomIndex = _random.Next(allPieces.Count - 1);
@@ -49,7 +49,7 @@ namespace Perfectris
 			else
 			{
 				for (var i = 0; i < 7; i++)
-					working.Add((Piece) _random.Next(6));
+					working.Add((TetrominoType) _random.Next(6));
 			}
 			
 

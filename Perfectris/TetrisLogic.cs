@@ -53,6 +53,21 @@ namespace Perfectris
 		/// </summary>
 		public bool SonicDrop;
 
+		/// <summary>
+		/// The rotation system to use - usually SRS
+		/// </summary>
+		public IRotationSystem RotationSystem;
+
+		/// <summary>
+		/// How many ticks it takes to lock a piece down
+		/// </summary>
+		public int LockdownTime;
+
+		/// <summary>
+		/// The Lockdown Mode - See https://tetris.wiki/Tetris_Guideline at "Lock Down"
+		/// </summary>
+		public LockdownMode LockdownMode;
+
 		public TetrisLogic()
 		{
 			DasRate         = 30;
@@ -64,6 +79,11 @@ namespace Perfectris
 			GravityIncrease = (gravity, level) => gravity - (1 / ((1 / gravity) * (decimal) Math.Pow(2, level)));
 			SoftDropGravity = (decimal) (2.0 / 3); // 40 / 60 - 40 cells per second / GravityRate
 			SoftDropLock    = false;
+
+			RotationSystem = new SuperRotationSystem();
+
+			LockdownTime = 50; // 0.5 seconds * 100 ticks per second
+			LockdownMode = LockdownMode.MoveReset;
 		}
 		
 		public bool IsRenderNecessary(GameLoop<GameState> loop)
@@ -75,5 +95,12 @@ namespace Perfectris
 		{
 			
 		}
+	}
+
+	public enum LockdownMode
+	{
+		Infinity,
+		MoveReset,
+		StepReset
 	}
 }

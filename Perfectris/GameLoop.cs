@@ -22,12 +22,42 @@ namespace Perfectris
 		private Task? _task;
 
 		public TState GameState = new();
+		
+		private bool _cancelAfterNextTick = false;
 
 		public GameLoop(Action<GameLoop<TState>> render, Func<GameLoop<TState>, bool> isRenderNecessary, bool startNow = false, int tickRate = 100)
 		{
 			_tickTime = decimal.One / tickRate;
 
-			if (!startNow) return;
+			if (startNow) StartIfNotAlready(render, isRenderNecessary);
+		}
+
+		private void RunLoop(Func<GameLoop<TState>, bool> isRenderNecessary, Action<GameLoop<TState>> render)
+		{
+			do
+			{
+				CurrentTick++;
+				// start timing for tick
+				var startTime = DateTime.Now;
+				if (isRenderNecessary(this)) render(this);
+				var endTime    = DateTime.Now;
+				var renderTime = (decimal) startTime.Subtract(endTime).TotalSeconds;
+				_timeDebt = Math.Max(0, _tickTime - renderTime);
+				// 10,000,000 converts seconds to ticks
+				var timeToWait = (long) Math.Max(0, renderTime - _tickTime + _timeDebt) * 10_000_000;
+				Thread.Sleep(new TimeSpan(timeToWait));
+			} while (!_cancelAfterNextTick);
+
+			_cancelAfterNextTick = false;
+			_task                = null;
+		}
+
+		public void StartIfNotAlready(Action<GameLoop<TState>> render, Func<GameLoop<TState>,bool> isRenderNecessary)
+		{
+			if (_task == null) return;
+
+			_cancelAfterNextTick = false;
+
 			var creationOptions = Task.Factory.CreationOptions | TaskCreationOptions.LongRunning | TaskCreationOptions.PreferFairness;
 			_task = Task.Factory.StartNew(() =>
 										  {
@@ -35,17 +65,6 @@ namespace Perfectris
 										  }, creationOptions);
 		}
 
-		private void RunLoop(Func<GameLoop<TState>, bool> isRenderNecessary, Action<GameLoop<TState>> render)
-		{
-			CurrentTick++;
-			// start timing for tick
-			var startTime = DateTime.Now;
-			if (isRenderNecessary(this)) render(this);
-			var endTime    = DateTime.Now;
-			var renderTime = (decimal) startTime.Subtract(endTime).TotalSeconds;
-			_timeDebt = Math.Min(0, _tickTime - renderTime);
-			var timeToWait = (long) Math.Min(0, renderTime - _tickTime + _timeDebt) * 10_000_000; // 10,000,000 converts seconds to ticks
-			Thread.Sleep(new TimeSpan(timeToWait));
-		}
+		public void StopAfterNextTick() => _cancelAfterNextTick = true;
 	}
 }
