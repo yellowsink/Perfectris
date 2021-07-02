@@ -1,28 +1,29 @@
 using System;
-using Avalonia.Media;
+using Perfectris.Core.Logic.Rotation;
 
-namespace Perfectris
+namespace Perfectris.Core.Logic
 {
 	public class TetrisLogic
 	{
 		// For more info on what DAS means visit https://tetris.wiki/DAS
 		
 		/// <summary>
-		/// Delayed Auto Shift time in seconds - time between each move when holding a key
+		/// Delayed Auto Shift time in ticks - time between each move when holding a key
 		/// </summary>
-		public decimal DasTime;
+		public int DasTime;
 		/// <summary>
-		/// convenient interface to access DasTime but in Hz
+		/// Sets the DAS time using the rate in Hz
 		/// </summary>
-		public decimal DasRate
-		{
-			get => 1 / DasTime;
-			set => DasTime = 1 / value;
-		}
+		public void SetDasRate(decimal ticksPerSecond, decimal rate) => DasTime = (int) (ticksPerSecond / rate);
 		/// <summary>
-		/// How long after pressing a key Delayed Auto Shift activates
+		/// Gets the DAS rate in Hz
 		/// </summary>
-		public decimal DasDelay;
+		public decimal GetDasRate(decimal ticksPerSecond) => ticksPerSecond / DasTime;
+
+		/// <summary>
+		/// How many ticks after pressing a key Delayed Auto Shift activates
+		/// </summary>
+		public int DasDelay;
 
 		/// <summary>
 		/// Where to start counting gravity from
@@ -70,14 +71,14 @@ namespace Perfectris
 
 		public TetrisLogic()
 		{
-			DasRate         = 30;
-			DasDelay        = 10;
+			SetDasRate(100, 30);
+			DasDelay = 10;
 			
 			SonicDrop       = false;
 			
-			GravityOffset   = (decimal) 0.015625; // 1/64
+			GravityOffset   = 1m / 64;
 			GravityIncrease = (gravity, level) => gravity - (1 / ((1 / gravity) * (decimal) Math.Pow(2, level)));
-			SoftDropGravity = (decimal) (2.0 / 3); // 40 / 60 - 40 cells per second / GravityRate
+			SoftDropGravity = 2m / 3; // 40 / 60 - 40 cells per second / GravityRate
 			SoftDropLock    = false;
 
 			RotationSystem = new SuperRotationSystem();
@@ -86,14 +87,13 @@ namespace Perfectris
 			LockdownMode = LockdownMode.MoveReset;
 		}
 		
-		public bool IsRenderNecessary(GameLoop<GameState> loop)
+		public bool IsRenderNecessary(GameLoop<GameState> l)
 		{
 			return false;
 		}
 
-		public void Render(GameLoop<GameState> loop, Action<Color[][]> setGrid)
+		public void Render(GameLoop<GameState> loop, Action<TetrominoType?[][]> setGrid)
 		{
-			
 		}
 	}
 

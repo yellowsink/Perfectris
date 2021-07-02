@@ -2,15 +2,15 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Perfectris
+namespace Perfectris.Core
 {
 	public class TetrominoGenerator
 	{
 		private TetrominoType[] _bag;
 		private TetrominoType[] _nextBag;
-		private int     bagIndex;
-		private bool    _use7Bag;
-		private Random  _random = new();
+		private int             _bagIndex;
+		private bool            _use7Bag;
+		private Random          _random = new();
 
 		public TetrominoGenerator(bool use7Bag = true)
 		{
@@ -19,17 +19,23 @@ namespace Perfectris
 			AdvanceBags(use7Bag);
 		}
 
+		public void AdvanceQueue()
+		{
+			_bagIndex++;
+		}
+
 		public TetrominoType[] GetQueue()
 		{
-			if (bagIndex == 7) AdvanceBags(_use7Bag);
+			while (_bagIndex >= 7) AdvanceBags(_use7Bag);
 			// eg index = 2  /- skip first 2           /- take 2 from the next bag to fill in
-			return _bag.Skip(bagIndex).Concat(_nextBag.Take(bagIndex)).ToArray();
+			return _bag.Skip(_bagIndex).Concat(_nextBag.Take(_bagIndex)).ToArray();
 		}
 
 		private void AdvanceBags(bool use7Bag)
 		{
-			_bag     = _nextBag;
-			_nextBag = GenerateBag(use7Bag);
+			_bag      =  _nextBag;
+			_nextBag  =  GenerateBag(use7Bag);
+			_bagIndex -= 7;
 		}
 
 		private TetrominoType[] GenerateBag(bool use7Bag)

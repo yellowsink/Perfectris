@@ -2,11 +2,13 @@
     <PropertyGroup>
         <OutputType>WinExe</OutputType>
         <TargetFramework>net5.0</TargetFramework>
-        <Nullable>enable</Nullable>
     </PropertyGroup>
     <ItemGroup>
         <PackageReference Include="Avalonia" Version="0.10.3" />
         <PackageReference Include="Avalonia.Desktop" Version="0.10.3" />
         <PackageReference Include="Avalonia.Diagnostics" Version="0.10.3" />
+    </ItemGroup>
+    <ItemGroup>
+      <ProjectReference Include="..\Perfectris.Core\Perfectris.Core.csproj" />
     </ItemGroup>
 </Project>

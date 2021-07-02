@@ -1,8 +1,9 @@
+#nullable enable
 using System;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Perfectris
+namespace Perfectris.Core
 {
 	public class GameLoop<TState> where TState : new()
 	{

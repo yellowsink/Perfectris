@@ -1,6 +1,4 @@
-using System.Linq.Expressions;
-
-namespace Perfectris
+namespace Perfectris.Core
 {
 	public class InputState
 	{

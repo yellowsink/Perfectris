@@ -2,7 +2,8 @@ using System;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Markup.Xaml;
-using Avalonia.Media;
+using Perfectris.Core;
+using Perfectris.Core.Logic;
 
 namespace Perfectris
 {
@@ -22,6 +23,6 @@ namespace Perfectris
 
 		private void InitializeComponent() { AvaloniaXamlLoader.Load(this); }
 
-		public void SetGrid(Color[][] grid) => throw new NotImplementedException();
+		public void SetGrid(TetrominoType?[][] grid) => throw new NotImplementedException();
 	}
 }

@@ -1,11 +1,11 @@
-namespace Perfectris
+namespace Perfectris.Core.Logic.Rotation
 {
 	public class RotateResult
 	{
 		/// <summary>
-		/// How many times to rotate clockwise
+		/// The new piece
 		/// </summary>
-		public int Rotate;
+		public bool[][] NewGrid;
 
 		/// <summary>
 		/// Required horizontal movement for wall kicks

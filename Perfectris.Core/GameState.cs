@@ -1,4 +1,4 @@
-namespace Perfectris
+namespace Perfectris.Core
 {
 	public class GameState
 	{
@@ -24,6 +24,11 @@ namespace Perfectris
 		/// Convenience value for if a piece is held
 		/// </summary>
 		public bool IsPieceHeld => HeldPiece.HasValue;
+
+		/// <summary>
+		/// The stack. Tetromino type is used to determine the right colour
+		/// </summary>
+		public TetrominoType?[][] Stack = { new TetrominoType?[] { null } };
 
 		/// <summary>
 		/// State of inputs
