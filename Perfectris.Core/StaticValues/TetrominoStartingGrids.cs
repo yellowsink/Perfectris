@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace Perfectris.Core
+namespace Perfectris.Core.StaticValues
 {
 	public static class TetrominoStartingGrids
 	{
