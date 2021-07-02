@@ -19,10 +19,7 @@ namespace Perfectris.Core
 			AdvanceBags(use7Bag);
 		}
 
-		public void AdvanceQueue()
-		{
-			_bagIndex++;
-		}
+		public void AdvanceQueue() => _bagIndex++;
 
 		public TetrominoType[] GetQueue()
 		{

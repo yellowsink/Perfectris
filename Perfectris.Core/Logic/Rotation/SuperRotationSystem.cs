@@ -14,7 +14,7 @@ namespace Perfectris.Core.Logic.Rotation
 		public RotateResult Anticlockwise(Tetromino piece, GameState state)
 			=> RotateBase(piece, state, RotateGridACW, piece.Direction.Anticlockwise());
 
-		private static RotateResult RotateBase(Tetromino piece, GameState state, Func<bool[][], bool[][]> RotateFunc, Direction newDirection)
+		private static RotateResult RotateBase(Tetromino piece, GameState state, Func<bool[][], bool[][]> rotateFunc, Direction newDirection)
 		{
 			var stack = state.Stack.Select(row => row.Select(cell => cell.HasValue).ToArray()).ToArray();
 
@@ -22,7 +22,7 @@ namespace Perfectris.Core.Logic.Rotation
 			var tests     = testTable[(piece.Direction, newDirection)];
 			foreach (var (x, y) in tests)
 			{
-				var valid = SrsIntersectionChecker.CheckValid(piece.Grid, piece.PosX + x, piece.PosY + y, stack);
+				var valid = IntersectionChecker.CheckValid(piece, x, y, stack, rotateFunc, state.Stack[0].Length);
 				if (valid)
 					return new RotateResult { NewGrid = RotateGridCW(piece.Grid), TranslateX = x, TranslateY = y };
 			}
