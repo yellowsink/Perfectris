@@ -1,8 +1,9 @@
 using System.Linq;
+using Perfectris.Core.Enums;
 using Perfectris.Core.Logic;
 using Perfectris.Core.StaticValues;
 
-namespace Perfectris.Core
+namespace Perfectris.Core.Types
 {
 	public class Tetromino
 	{

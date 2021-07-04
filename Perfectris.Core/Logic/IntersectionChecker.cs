@@ -1,76 +1,38 @@
 using System;
+using Perfectris.Core.Types;
 
 namespace Perfectris.Core.Logic
 {
 	public static class IntersectionChecker
 	{
 		public static bool WillHitLeftEdge(Tetromino piece, Func<bool[][], bool[][]> rotationFunc)
-		{
-			if (piece.PosX >= 0) return false; // piece cannot hit left edge unless negative PosX
+			=> WillHitEdge(piece, rotationFunc, false);
 
-			// How many columns are empty on the left before and after rotation
-			var startOpenColumns = OpenColumnsFromLeft(piece.Grid);
-			var endOpenColumns   = OpenColumnsFromLeft(rotationFunc(piece.Grid));
+		public static bool WillHitRightEdge(Tetromino piece, Func<bool[][], bool[][]> rotationFunc, int gridWidth)
+			=> WillHitEdge(piece, rotationFunc, true, gridWidth);
 
-			// How much the piece moved to the left
-			var pieceMovedLeft = endOpenColumns - startOpenColumns;
-
-			// There must be more or equal space to the left than that we need to move in order to rotate
-			return piece.PosX >= pieceMovedLeft;
-		}
-		
-		public static bool WillHitRightEdge(Tetromino piece, int gridWidth, Func<bool[][], bool[][]> rotationFunc)
+		private static bool WillHitEdge(Tetromino piece, Func<bool[][], bool[][]> rotationFunc, bool rightEdge, int gridWidth = 0)
 		{
 			var maxPieceSize = Math.Max(piece.Grid.Length, piece.Grid[0].Length);
-			var spaceToRight = gridWidth - piece.PosX - maxPieceSize;
+			var spaceToEdge  = rightEdge 
+								   ? gridWidth - piece.PosX - maxPieceSize
+								   : piece.PosX;
 			
-			if (spaceToRight >= 0) return false; // piece cannot hit right edge in this case
+			if (spaceToEdge >= 0) return false; // must be clipping into the edge to collide with it
+			
+			// How many columns are empty on the edge of the piece grid before and after rotation
+			var startOpenColumns = rightEdge
+									   ? piece.OpenColumnsFromRight() 
+									   : piece.OpenColumnsFromLeft();
+			var endOpenColumns   = rightEdge 
+									   ? rotationFunc(piece.Grid).OpenColumnsFromRight()
+									   : rotationFunc(piece.Grid).OpenColumnsFromLeft();
 
-			// How many columns are empty on the right before and after rotation
-			var startOpenColumns = OpenColumnsFromRight(piece.Grid);
-			var endOpenColumns   = OpenColumnsFromRight(rotationFunc(piece.Grid));
+			// How much the piece moved towards the edge
+			var pieceMovedToEdge = endOpenColumns - startOpenColumns;
 
-			// How much the piece moved to the right
-			var pieceMovedRight = endOpenColumns - startOpenColumns;
-
-			// There must be more or equal space to the right than that we need to move in order to rotate
-			return spaceToRight >= pieceMovedRight;
-		}
-
-		private static int OpenColumnsFromLeft(bool[][] grid)
-		{
-			var openColumns = 0;
-
-			for (var column = 0; column < grid[0].Length; column++)
-			{
-				var isOpen = true;
-				foreach (var row in grid)
-					if (row[column])
-						isOpen = false;
-
-				if (isOpen) openColumns++;
-				else break;
-			}
-
-			return openColumns;
-		}
-		
-		private static int OpenColumnsFromRight(bool[][] grid)
-		{
-			var openColumns = 0;
-
-			for (var column = grid[0].Length - 1; column >= 0; column--)
-			{
-				var isOpen = true;
-				foreach (var row in grid)
-					if (row[column])
-						isOpen = false;
-
-				if (isOpen) openColumns++;
-				else break;
-			}
-
-			return openColumns;
+			// There must be more or equal space to the edge than the amount the piece moved towards it
+			return spaceToEdge >= pieceMovedToEdge;
 		}
 
 		private static bool CheckIntersect(bool[][] paddedGrid, bool[][] stackGrid)
@@ -91,7 +53,7 @@ namespace Perfectris.Core.Logic
 			var gridX = stack[0].Length;
 			var gridY = stack.Length;
 
-			if (WillHitLeftEdge(piece, rotateFunc) || WillHitRightEdge(piece, gridWidth, rotateFunc))
+			if (WillHitLeftEdge(piece, rotateFunc) || WillHitRightEdge(piece, rotateFunc, gridWidth))
 				return false;
 
 			return !CheckIntersect(Tetromino.GetInGrid(rotateFunc(piece.Grid),

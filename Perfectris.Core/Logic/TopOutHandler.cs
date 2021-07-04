@@ -1,4 +1,5 @@
 using System;
+using Perfectris.Core.Types;
 
 namespace Perfectris.Core.Logic
 {

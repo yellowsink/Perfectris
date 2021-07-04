@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Perfectris.Core.Enums;
 
 namespace Perfectris.Core.StaticValues
 {

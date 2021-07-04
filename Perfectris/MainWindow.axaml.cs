@@ -3,7 +3,9 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Markup.Xaml;
 using Perfectris.Core;
+using Perfectris.Core.Enums;
 using Perfectris.Core.Logic;
+using Perfectris.Core.Types;
 
 namespace Perfectris
 {

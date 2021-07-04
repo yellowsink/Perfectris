@@ -1,7 +1,9 @@
 using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using Perfectris.Core.Enums;
 using Perfectris.Core.StaticValues;
+using Perfectris.Core.Types;
 
 namespace Perfectris.Core.Logic.Rotation
 {

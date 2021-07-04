@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Perfectris.Core.Enums;
+using Perfectris.Core.Types;
 
 namespace Perfectris.Core.Logic
 {
@@ -62,5 +64,44 @@ namespace Perfectris.Core.Logic
 			Direction.Left  => Direction.Down,
 			_               => throw new ArgumentOutOfRangeException()
 		};
+		
+		public static int OpenColumnsFromLeft(this bool[][] grid)
+		{
+			var openColumns = 0;
+
+			for (var column = 0; column < grid[0].Length; column++)
+			{
+				var isOpen = true;
+				foreach (var row in grid)
+					if (row[column])
+						isOpen = false;
+
+				if (isOpen) openColumns++;
+				else break;
+			}
+
+			return openColumns;
+		}
+		
+		public static int OpenColumnsFromRight(this bool[][] grid)
+		{
+			var openColumns = 0;
+
+			for (var column = grid[0].Length - 1; column >= 0; column--)
+			{
+				var isOpen = true;
+				foreach (var row in grid)
+					if (row[column])
+						isOpen = false;
+
+				if (isOpen) openColumns++;
+				else break;
+			}
+
+			return openColumns;
+		}
+
+		public static int OpenColumnsFromLeft(this  Tetromino piece) => piece.Grid.OpenColumnsFromLeft();
+		public static int OpenColumnsFromRight(this Tetromino piece) => piece.Grid.OpenColumnsFromRight();
 	}
 }

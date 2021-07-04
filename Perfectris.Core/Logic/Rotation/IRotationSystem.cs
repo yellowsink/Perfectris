@@ -1,3 +1,5 @@
+using Perfectris.Core.Types;
+
 namespace Perfectris.Core.Logic.Rotation
 {
 	public interface IRotationSystem

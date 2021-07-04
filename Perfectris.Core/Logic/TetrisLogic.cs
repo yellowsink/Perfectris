@@ -1,5 +1,7 @@
 using System;
+using Perfectris.Core.Enums;
 using Perfectris.Core.Logic.Rotation;
+using Perfectris.Core.Types;
 
 namespace Perfectris.Core.Logic
 {

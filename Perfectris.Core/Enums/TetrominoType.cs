@@ -1,4 +1,4 @@
-namespace Perfectris.Core
+namespace Perfectris.Core.Enums
 {
 	public enum TetrominoType
 	{

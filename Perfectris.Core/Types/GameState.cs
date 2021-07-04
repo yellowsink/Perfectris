@@ -1,4 +1,6 @@
-namespace Perfectris.Core
+using Perfectris.Core.Enums;
+
+namespace Perfectris.Core.Types
 {
 	public class GameState
 	{
