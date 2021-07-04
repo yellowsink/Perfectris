@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Perfectris.Core.Enums;
+using Perfectris.Core.StaticValues;
 using Perfectris.Core.Types;
 
 namespace Perfectris.Core.Logic
@@ -103,5 +104,18 @@ namespace Perfectris.Core.Logic
 
 		public static int OpenColumnsFromLeft(this  Tetromino piece) => piece.Grid.OpenColumnsFromLeft();
 		public static int OpenColumnsFromRight(this Tetromino piece) => piece.Grid.OpenColumnsFromRight();
+		
+		public static (int, int) GetSpawnPos(this TetrominoType pieceType, int gridSizeX, int gridSizeY)
+		{
+			var spawnLine = Math.Max(0, gridSizeY - 21); // end up on either row 22 or the top of the grid
+
+			var gridMidpoint = gridSizeX / 2;
+			
+			var pieceWidth = TetrominoStartingGrids.StartingGrids[pieceType][0].Length;
+
+			var spawnColumn = gridMidpoint - pieceWidth / 2;
+
+			return (spawnColumn, spawnLine);
+		}
 	}
 }

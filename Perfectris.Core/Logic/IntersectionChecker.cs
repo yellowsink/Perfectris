@@ -35,12 +35,12 @@ namespace Perfectris.Core.Logic
 			return spaceToEdge >= pieceMovedToEdge;
 		}
 
-		private static bool CheckIntersect(bool[][] paddedGrid, bool[][] stackGrid)
+		public static bool CheckIntersect(bool[][] grid1, bool[][] grid2)
 		{
-			for (var y = 0; y < paddedGrid.Length; y++)
-				for (var x = 0; x < stackGrid[y].Length; x++)
+			for (var y = 0; y < Math.Min(grid1.Length, grid2.Length); y++)
+				for (var x = 0; x < Math.Min(grid1[y].Length, grid2[y].Length); x++)
 				{
-					if (paddedGrid[y][x] && stackGrid[y][x])
+					if (grid1[y][x] && grid2[y][x])
 						return true;
 				}
 

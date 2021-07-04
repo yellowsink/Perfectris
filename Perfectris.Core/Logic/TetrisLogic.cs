@@ -28,24 +28,24 @@ namespace Perfectris.Core.Logic
 		public int DasDelay;
 
 		/// <summary>
-		/// Where to start counting gravity from
+		/// Where gravity should start counting from
 		/// </summary>
-		public decimal GravityOffset;
+		public decimal GravityBase;
 		/// <summary>
-		/// Calculator for how much to increase gravity for a level
+		/// How much to increase gravity each level - set to 0 to disable levelling
 		/// </summary>
-		public Func<decimal, int, decimal> GravityIncrease;
-
+		public decimal GravityIncrease;
+		
 		/// <summary>
 		/// The framerate to use for calculating gravity times
 		/// </summary>
 		public const int GravityRate = 60;
 
 		/// <summary>
-		/// The gravity to use for soft drop. Will never soft drop slower than normal gravity
+		/// What to multiply gravity by when soft dropping
 		/// </summary>
 		/// <returns></returns>
-		public decimal SoftDropGravity;
+		public decimal SoftDropGravityFactor;
 		/// <summary>
 		/// Locks the piece instantly when soft dropping. See https://tetris.wiki/Drop#Soft_drop for helpful GIFs
 		/// </summary>
@@ -71,22 +71,55 @@ namespace Perfectris.Core.Logic
 		/// </summary>
 		public LockdownMode LockdownMode;
 
+		/// <summary>
+		/// How large the buffer zone is
+		/// </summary>
+		public int BufferZoneSize;
+
+		/// <summary>
+		/// The amount of columns in the grid
+		/// </summary>
+		public int GridSizeX;
+		/// <summary>
+		/// The amount of rows in the grid
+		/// </summary>
+		public int GridSizeY;
+
+		/// <summary>
+		/// When false, a sliver of row 21 is shown. When true pieces in the buffer are fully visible above the grid
+		/// </summary>
+		public bool VisibleBuffer;
+
+		/// <summary>
+		/// How many ticks to lock down a piece
+		/// </summary>
+		public int LockDelay;
+
 		public TetrisLogic()
 		{
-			SetDasRate(100, 30);
-			DasDelay = 10;
+			// These two values are from messing about in TETR.IO until it felt good :P
+			SetDasRate(100, 33); // 33ms
+			DasDelay = 150; // 150ms
 			
 			SonicDrop       = false;
-			
-			GravityOffset   = 1m / 64;
-			GravityIncrease = (gravity, level) => gravity - (1 / ((1 / gravity) * (decimal) Math.Pow(2, level)));
-			SoftDropGravity = 2m / 3; // 40 / 60 - 40 cells per second / GravityRate
-			SoftDropLock    = false;
+
+			GravityBase           = 0.8m;
+			GravityIncrease       = 0.07m;
+			SoftDropGravityFactor = 13; // TODO: I like 13x but this might be a bit high for default - will come back to this later
+			SoftDropLock          = false;
 
 			RotationSystem = new SuperRotationSystem();
 
-			LockdownTime = 50; // 0.5 seconds * 100 ticks per second
+			LockdownTime = 50; // 50ms
 			LockdownMode = LockdownMode.MoveReset;
+			
+			BufferZoneSize = 20;
+			GridSizeX      = 10;
+			GridSizeY      = 20;
+
+			VisibleBuffer = false;
+
+			LockDelay = 50; // 50ms
 		}
 		
 		public bool IsRenderNecessary(GameLoop<GameState> l)

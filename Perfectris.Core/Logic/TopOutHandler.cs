@@ -5,36 +5,44 @@ namespace Perfectris.Core.Logic
 {
 	public class TopOutHandler
 	{
-		private byte _types;
+		/// <summary>
+		/// Only 1 bit of a piece not all of it has to lock down in the vanish zone
+		/// </summary>
+		public bool PartialLockOut;
 
-		public TopOutType[] TopOutTypes
-		{
-			get => _types.TopOutTypes();
-			set => _types = value.ToByte();
-		}
-
-		public bool WillTopOut(TopOutCausingActionType action, bool[][] stack, Tetromino nextPiece, int intendedRotation = 0, int garbageRowsAdded = 0)
+		public bool CheckTopOut(TopOutCausingAction action, bool[][] stack, Tetromino nextPiece, int bufferZoneHeight = 0, int garbageRowsAdded = 0)
 		{
 			switch (action)
 			{
-				case TopOutCausingActionType.Spawn:
+				case TopOutCausingAction.Spawn:
+					var pieceInGrid = nextPiece.GetInGrid(stack[0].Length, stack.Length);
+					return IntersectionChecker.CheckIntersect(pieceInGrid, stack);
+				
+				case TopOutCausingAction.Lockdown:
+					return PartialLockOut
+							   ? nextPiece.PosY                         <= bufferZoneHeight
+							   : nextPiece.PosY + nextPiece.Grid.Length <= bufferZoneHeight;
+				
+				case TopOutCausingAction.Garbage:
+					// TODO: FIGURE OUT WHAT THE HELL "TOPOUT" ACTUALLY MEANS
+					// My best guess for now is that garbage causes the currently dropping tetromino to be pushed into the buffer zone entirely
+					var bottomRowOfPieceBefore = nextPiece.PosY         + nextPiece.Grid.Length;
+					var bottomRowOfPieceAfter  = bottomRowOfPieceBefore + garbageRowsAdded;
+					var inBufferBefore         = bottomRowOfPieceBefore <= bufferZoneHeight;
+					var inBufferAfter          = bottomRowOfPieceAfter  <= bufferZoneHeight;
 					
-					break;
-				case TopOutCausingActionType.Rotation:
-					break;
-				case TopOutCausingActionType.Garbage:
-					break;
+					return !inBufferBefore && inBufferAfter;
+				
 				default:
 					throw new ArgumentOutOfRangeException(nameof(action), action, "Not a valid top out causing action");
 			}
-			return false;
 		}
 	}
 
-	public enum TopOutCausingActionType
+	public enum TopOutCausingAction
 	{
 		Spawn,
-		Rotation,
+		Lockdown,
 		Garbage
 	}
 }

@@ -13,10 +13,11 @@ namespace Perfectris.Core.Types
 		public int           PosY;
 		public TetrominoType Type;
 
-		public Tetromino(TetrominoType type)
+		public Tetromino(TetrominoType type, int gridSizeX, int gridSizeY)
 		{
-			Type = type;
-			Grid = TetrominoStartingGrids.StartingGrids[type];
+			Type         = type;
+			Grid         = TetrominoStartingGrids.StartingGrids[type];
+			(PosX, PosY) = type.GetSpawnPos(gridSizeX, gridSizeY);
 		}
 
 		
