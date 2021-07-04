@@ -1,4 +1,3 @@
-using System;
 using Perfectris.Core.Types;
 
 namespace Perfectris.Core.Logic
@@ -10,39 +9,21 @@ namespace Perfectris.Core.Logic
 		/// </summary>
 		public bool PartialLockOut;
 
-		public bool CheckTopOut(TopOutCausingAction action, bool[][] stack, Tetromino nextPiece, int bufferZoneHeight = 0, int garbageRowsAdded = 0)
+		/// <summary>
+		/// Check if block out will occur - top out due to a piece spawn being blocked
+		/// </summary>
+		public bool CheckBlockOut(bool[][] stack, Tetromino nextPiece)
 		{
-			switch (action)
-			{
-				case TopOutCausingAction.Spawn:
-					var pieceInGrid = nextPiece.GetInGrid(stack[0].Length, stack.Length);
-					return IntersectionChecker.CheckIntersect(pieceInGrid, stack);
-				
-				case TopOutCausingAction.Lockdown:
-					return PartialLockOut
-							   ? nextPiece.PosY                         <= bufferZoneHeight
-							   : nextPiece.PosY + nextPiece.Grid.Length <= bufferZoneHeight;
-				
-				case TopOutCausingAction.Garbage:
-					// TODO: FIGURE OUT WHAT THE HELL "TOPOUT" ACTUALLY MEANS
-					// My best guess for now is that garbage causes the currently dropping tetromino to be pushed into the buffer zone entirely
-					var bottomRowOfPieceBefore = nextPiece.PosY         + nextPiece.Grid.Length;
-					var bottomRowOfPieceAfter  = bottomRowOfPieceBefore + garbageRowsAdded;
-					var inBufferBefore         = bottomRowOfPieceBefore <= bufferZoneHeight;
-					var inBufferAfter          = bottomRowOfPieceAfter  <= bufferZoneHeight;
-					
-					return !inBufferBefore && inBufferAfter;
-				
-				default:
-					throw new ArgumentOutOfRangeException(nameof(action), action, "Not a valid top out causing action");
-			}
+			var pieceInGrid = nextPiece.GetInGrid(stack[0].Length, stack.Length);
+			return IntersectionChecker.CheckIntersect(pieceInGrid, stack);
 		}
-	}
 
-	public enum TopOutCausingAction
-	{
-		Spawn,
-		Lockdown,
-		Garbage
+		/// <summary>
+		/// Check if lock out will occur - top put due to a piece locking down fully / partially in the vanish zone
+		/// </summary>
+		public bool CheckLockOut(Tetromino nextPiece, int bufferZoneHeight)
+			=> PartialLockOut
+				   ? nextPiece.PosY                         <= bufferZoneHeight
+				   : nextPiece.PosY + nextPiece.Grid.Length <= bufferZoneHeight;
 	}
 }
