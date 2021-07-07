@@ -121,14 +121,123 @@ namespace Perfectris.Core.Logic
 
 			LockDelay = 50; // 50ms
 		}
-		
-		public bool IsRenderNecessary(GameLoop<GameState> l)
+
+		public void Update(GameLoop<GameStateWrapper> loop, Action<TetrominoType?[][]> setGrid)
 		{
-			return false;
+			var gravityUpdate = CheckGravity(loop);
+			if (gravityUpdate) RunGravity(loop);
+			var moveUpdate = CheckMove(loop);
+			if (moveUpdate) RunMove(loop);
+			var softDropUpdate = CheckGravity(loop, true);
+			if (softDropUpdate) RunGravity(loop, true);
+			
+			
+			if (gravityUpdate || moveUpdate)
+				setGrid(loop.State.Get().Stack);
 		}
 
-		public void Render(GameLoop<GameState> loop, Action<TetrominoType?[][]> setGrid)
+
+		/// <summary>
+		/// Checks if a piece should be moved via DAS or manually this tick
+		/// </summary>
+		private bool CheckMove(GameLoop<GameStateWrapper> loop)
 		{
+			if (loop.CurrentTick == loop.State.Get().InputState.PressDownTick)
+				return true;
+			
+			var tickOnCycle    = loop.CurrentTick - loop.State.Get().DasTickOffset;
+			var postDelayTicks = tickOnCycle      - DasDelay;
+			if (postDelayTicks < 0) return false; // DAS has not activated yet
+			
+			// If the post-delay ticks is a multiple of DelayTime then the modulo = 0 - this makes it repeat correctly
+			return postDelayTicks % DasTime == 0;
+		}
+
+		/// <summary>
+		/// Applies movement for DAS or standard movement
+		/// </summary>
+		private void RunMove(GameLoop<GameStateWrapper> loop)
+		{
+			ref var stateRef   = ref loop.State.Get();
+
+			switch (stateRef.InputState.MoveDirection)
+			{
+				case MoveDirection.None:
+					break;
+				case MoveDirection.Left:
+					if (stateRef.CurrentPiece is { PosX: > 0 })
+						stateRef.CurrentPiece.PosX--;
+					break;
+				case MoveDirection.Right:
+					if (stateRef.CurrentPiece is not { })
+						break;
+
+					var maxRight = GridSizeX + stateRef.CurrentPiece.OpenColumnsFromRight();
+					
+					if (stateRef.CurrentPiece.PosX < maxRight - 1)
+						stateRef.CurrentPiece.PosX++;
+					break;
+				default:
+					throw new ArgumentOutOfRangeException();
+			}
+		}
+		
+
+		/// <summary>
+		/// Checks if gravity should be applied this tick
+		/// </summary>
+		private bool CheckGravity(GameLoop<GameStateWrapper> loop, bool softDrop = false)
+		{
+			ref var stateRef      = ref loop.State.Get();
+
+			var ticksNoOffset = loop.CurrentTick - stateRef.GravityTickOffset;
+
+			var (ticksPerMove, _) = GravityToTicks(GetGravity(stateRef.Level, softDrop));
+			return ticksNoOffset % ticksPerMove == 0; // See the return statement on CheckMove for why this works
+		}
+
+		/// <summary>
+		/// Applies gravity once
+		/// </summary>
+		private void RunGravity(GameLoop<GameStateWrapper> loop, bool softDrop = false)
+		{
+			ref var stateRef = ref loop.State.Get();
+			
+			if (stateRef.GravityTickTimer > 0) // Deal with what to do if gravity is paused
+			{
+				stateRef.GravityTickTimer--;
+				stateRef.GravityTickOffset++;
+				return;
+			}
+
+			var (_, cellsToMove) = GravityToTicks(GetGravity(stateRef.Level, softDrop));
+
+			if (stateRef.CurrentPiece != null) stateRef.CurrentPiece.PosY += cellsToMove;
+		}
+
+		/// <summary>
+		/// Gets the gravity for the given level
+		/// </summary>
+		private decimal GetGravity(int level, bool softDrop = false)
+			=> (GravityBase + GravityIncrease * (level - 1)) * (softDrop ? SoftDropGravityFactor : 1);
+
+		/// <summary>
+		/// Calculates the ticks per move and cells to move from a gravity value
+		/// </summary>
+		private static (int, int) GravityToTicks(decimal gravity)
+		{
+			var framesPerCell = 1m / gravity;
+
+			var cellsPerMove = 1;
+			var ticksPerMove = 0m;
+
+			while (ticksPerMove < 1) // less than 1 tick per cell
+			{
+				cellsPerMove++;
+				ticksPerMove = framesPerCell * GravityRate / 100 * cellsPerMove;
+			}
+
+			return ((int) ticksPerMove, cellsPerMove);
 		}
 	}
 

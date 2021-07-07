@@ -11,6 +11,16 @@ namespace Perfectris.Core.Types
 		public int DasTickOffset = 0;
 
 		/// <summary>
+		/// If something temporarily pauses gravity, this will be incremented that many ticks
+		/// </summary>
+		public int GravityTickOffset = 0;
+
+		/// <summary>
+		/// Counts down to add to offset when you want to pause - here to make pausing gravity much easier
+		/// </summary>
+		public int GravityTickTimer = 0;
+
+		/// <summary>
 		/// How many ticks left until the piece locks down
 		/// </summary>
 		public int LockDownTimer = 0;
@@ -33,5 +43,12 @@ namespace Perfectris.Core.Types
 		/// State of inputs
 		/// </summary>
 		public InputState InputState = new();
+
+		/// <summary>
+		/// The player's current level
+		/// </summary>
+		public int Level = 1;
+
+		public Tetromino? CurrentPiece = null;
 	}
 }

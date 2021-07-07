@@ -11,7 +11,7 @@ namespace Perfectris
 {
 	public partial class MainWindow : Window
 	{
-		private GameLoop<GameState> _gameLoop;
+		private GameLoop<GameStateWrapper> _gameLoop;
 		private TetrisLogic         _logic = new();
 		
 		public MainWindow()
@@ -20,7 +20,7 @@ namespace Perfectris
 #if DEBUG
 			this.AttachDevTools();
 #endif
-			_gameLoop = new(loop => _logic.Render(loop, SetGrid), _logic.IsRenderNecessary);
+			_gameLoop = new(loop => _logic.Update(loop, SetGrid));
 		}
 
 		private void InitializeComponent() { AvaloniaXamlLoader.Load(this); }

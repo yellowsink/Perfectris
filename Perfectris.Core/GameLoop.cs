@@ -22,25 +22,25 @@ namespace Perfectris.Core
 
 		private Task? _task;
 
-		public TState GameState = new();
+		public TState State = new();
 		
-		private bool _cancelAfterNextTick = false;
+		private bool _cancelAfterNextTick;
 
-		public GameLoop(Action<GameLoop<TState>> render, Func<GameLoop<TState>, bool> isRenderNecessary, bool startNow = false, int tickRate = 100)
+		public GameLoop(Action<GameLoop<TState>> update, bool startNow = false, int tickRate = 100)
 		{
 			_tickTime = decimal.One / tickRate;
 
-			if (startNow) StartIfNotAlready(render, isRenderNecessary);
+			if (startNow) StartIfNotAlready(update);
 		}
 
-		private void RunLoop(Func<GameLoop<TState>, bool> isRenderNecessary, Action<GameLoop<TState>> render)
+		private void RunLoop(Action<GameLoop<TState>> update)
 		{
 			do
 			{
 				CurrentTick++;
 				// start timing for tick
 				var startTime = DateTime.Now;
-				if (isRenderNecessary(this)) render(this);
+				update(this);
 				var endTime    = DateTime.Now;
 				var renderTime = (decimal) startTime.Subtract(endTime).TotalSeconds;
 				_timeDebt = Math.Max(0, _tickTime - renderTime);
@@ -53,7 +53,7 @@ namespace Perfectris.Core
 			_task                = null;
 		}
 
-		public void StartIfNotAlready(Action<GameLoop<TState>> render, Func<GameLoop<TState>,bool> isRenderNecessary)
+		public void StartIfNotAlready(Action<GameLoop<TState>> update)
 		{
 			if (_task == null) return;
 
@@ -62,7 +62,7 @@ namespace Perfectris.Core
 			var creationOptions = Task.Factory.CreationOptions | TaskCreationOptions.LongRunning | TaskCreationOptions.PreferFairness;
 			_task = Task.Factory.StartNew(() =>
 										  {
-											  RunLoop(isRenderNecessary, render);
+											  RunLoop(update);
 										  }, creationOptions);
 		}
 
