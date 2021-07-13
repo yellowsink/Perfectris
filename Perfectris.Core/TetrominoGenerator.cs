@@ -5,38 +5,55 @@ using Perfectris.Core.Enums;
 
 namespace Perfectris.Core
 {
-	public class TetrominoGenerator
+	public static class TetrominoGenerator
 	{
-		private TetrominoType[] _bag;
-		private TetrominoType[] _nextBag;
-		private int             _bagIndex;
-		private bool            _use7Bag;
-		private Random          _random = new();
-
-		public TetrominoGenerator(bool use7Bag = true)
+		private static TetrominoType[] _bag;
+		private static TetrominoType[] _nextBag;
+		private static int             _bagIndex;
+		private static bool            _use7Bag;
+		
+		/// <summary>
+		/// Whether to use 7bag. Setting resets bags.
+		/// </summary>
+		public static bool Use7Bag
 		{
-			_use7Bag = use7Bag;
-			_nextBag = GenerateBag(use7Bag);
-			AdvanceBags(use7Bag);
+			get => _use7Bag;
+			set
+			{
+				_use7Bag = value;
+				_nextBag = GenerateBag(value);
+				AdvanceBags(value);
+			}
+		}
+		
+		private static Random          _random = new();
+
+		static TetrominoGenerator() => Use7Bag = true;
+
+		public static void AdvanceQueue() => _bagIndex++;
+
+		public static TetrominoType GetNextAndAdvance()
+		{
+			var next = GetQueue()[0];
+			AdvanceQueue();
+			return next;
 		}
 
-		public void AdvanceQueue() => _bagIndex++;
-
-		public TetrominoType[] GetQueue()
+		public static TetrominoType[] GetQueue()
 		{
-			while (_bagIndex >= 7) AdvanceBags(_use7Bag);
+			while (_bagIndex >= 7) AdvanceBags(Use7Bag);
 			// eg index = 2  /- skip first 2           /- take 2 from the next bag to fill in
 			return _bag.Skip(_bagIndex).Concat(_nextBag.Take(_bagIndex)).ToArray();
 		}
 
-		private void AdvanceBags(bool use7Bag)
+		private static void AdvanceBags(bool use7Bag)
 		{
 			_bag      =  _nextBag;
 			_nextBag  =  GenerateBag(use7Bag);
 			_bagIndex -= 7;
 		}
 
-		private TetrominoType[] GenerateBag(bool use7Bag)
+		private static TetrominoType[] GenerateBag(bool use7Bag)
 		{
 			var working = new List<TetrominoType>();
 

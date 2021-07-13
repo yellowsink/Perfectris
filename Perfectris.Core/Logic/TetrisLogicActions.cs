@@ -114,7 +114,9 @@ namespace Perfectris.Core.Logic
 
 		private void RunSpawn(GameLoop<GameStateWrapper> loop)
 		{
-			
+			ref var stateRef = ref loop.State.Get();
+			stateRef.CurrentPiece = new Tetromino(TetrominoGenerator.GetNextAndAdvance(), GridSizeX, GridSizeY);
+			stateRef.WaitingState = WaitingState.NotWaiting;
 		}
 	}
 }
