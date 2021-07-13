@@ -49,6 +49,6 @@ namespace Perfectris.Core.Types
 		/// </summary>
 		public int Level = 1;
 
-		public Tetromino? CurrentPiece = null;
+		public Tetromino CurrentPiece = null!;
 	}
 }

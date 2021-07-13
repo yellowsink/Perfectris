@@ -48,6 +48,9 @@ namespace Perfectris.Core.Logic
 			return working;
 		}
 		
+		/// <summary>
+		/// Moves a direction clockwise
+		/// </summary>
 		public static Direction Clockwise(this Direction direction) => direction switch
 		{
 			Direction.Up    => Direction.Right,
@@ -57,6 +60,9 @@ namespace Perfectris.Core.Logic
 			_               => throw new ArgumentOutOfRangeException()
 		};
 
+		/// <summary>
+		/// Moves a direction anticlockwise
+		/// </summary>
 		public static Direction Anticlockwise(this Direction direction) => direction switch
 		{
 			Direction.Up    => Direction.Left,
@@ -66,6 +72,9 @@ namespace Perfectris.Core.Logic
 			_               => throw new ArgumentOutOfRangeException()
 		};
 		
+		/// <summary>
+		/// How many open columns are on the left of the grid
+		/// </summary>
 		public static int OpenColumnsFromLeft(this bool[][] grid)
 		{
 			var openColumns = 0;
@@ -84,6 +93,9 @@ namespace Perfectris.Core.Logic
 			return openColumns;
 		}
 		
+		/// <summary>
+		/// How many open columns are on the right of the grid
+		/// </summary>
 		public static int OpenColumnsFromRight(this bool[][] grid)
 		{
 			var openColumns = 0;
@@ -101,10 +113,56 @@ namespace Perfectris.Core.Logic
 
 			return openColumns;
 		}
+		
+		/// <summary>
+		/// How many open rows are on the top of the grid
+		/// </summary>
+		public static int OpenRowsFromTop(this bool[][] grid)
+		{
+			var openRows = 0;
+
+			foreach (var row in grid)
+			{
+				var isOpen = true;
+				foreach (var cell in row)
+					if (cell)
+						isOpen = false;
+
+				if (isOpen) openRows++;
+				else break;
+			}
+
+			return openRows;
+		}
+		/// <summary>
+		/// How many open rows are on the bottom of the grid
+		/// </summary>
+		public static int OpenRowsFromBottom(this bool[][] grid)
+		{
+			var openRows = 0;
+
+			for (var rows = grid[0].Length - 1; rows >= 0; rows--)
+			{
+				var isOpen = true;
+				foreach (var cell in grid[rows])
+					if (cell)
+						isOpen = false;
+
+				if (isOpen) openRows++;
+				else break;
+			}
+
+			return openRows;
+		}
 
 		public static int OpenColumnsFromLeft(this  Tetromino piece) => piece.Grid.OpenColumnsFromLeft();
 		public static int OpenColumnsFromRight(this Tetromino piece) => piece.Grid.OpenColumnsFromRight();
+		public static int OpenRowsFromTop(this      Tetromino piece) => piece.Grid.OpenRowsFromTop();
+		public static int OpenRowsFromBottom(this   Tetromino piece) => piece.Grid.OpenRowsFromBottom();
 		
+		/// <summary>
+		/// Calculates the spawn point for a tetromino
+		/// </summary>
 		public static (int, int) GetSpawnPos(this TetrominoType pieceType, int gridSizeX, int gridSizeY)
 		{
 			var spawnLine = Math.Max(0, gridSizeY - 21); // end up on either row 22 or the top of the grid
@@ -116,6 +174,33 @@ namespace Perfectris.Core.Logic
 			var spawnColumn = gridMidpoint - pieceWidth / 2;
 
 			return (spawnColumn, spawnLine);
+		}
+
+		/// <summary>
+		/// Combines two grids using the given function to pick a cell
+		/// </summary>
+		public static T[][] CombineGrids<T>(this T[][] grid1, T[][] grid2, Func<T, T, T> combineFunc)
+		{
+			var workingGrid = new List<T[]>();
+			
+			for (var y = 0; y < Math.Min(grid1.Length, grid2.Length); y++)
+			{
+				var workingRow = new List<T>();
+				
+				var row1 = grid1[y];
+				var row2 = grid2[y];
+
+				for (var x = 0; x < Math.Min(row1.Length, row2.Length); x++)
+				{
+					var cell1 = row1[x];
+					var cell2 = row2[x];
+					workingRow.Add(combineFunc(cell1, cell2));
+				}
+				
+				workingGrid.Add(workingRow.ToArray());
+			}
+
+			return workingGrid.ToArray();
 		}
 	}
 }
