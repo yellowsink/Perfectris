@@ -7,6 +7,20 @@ namespace Perfectris.Core.Logic
 {
 	public partial class TetrisLogic
 	{
+		private static void RunWait(GameLoop<GameStateWrapper> loop, WaitingState waitingState)
+		{
+			switch (waitingState)
+			{
+				case WaitingState.NotWaiting:
+					return;
+				case WaitingState.WaitingForSpawn:
+					loop.State.Get().Timers.SpawnWait--;
+					break;
+				default:
+					throw new ArgumentOutOfRangeException(nameof(waitingState), waitingState, null);
+			}
+		}
+		
 		/// <summary>
 		/// Applies movement for DAS or standard movement
 		/// </summary>
@@ -19,10 +33,12 @@ namespace Perfectris.Core.Logic
 				case MoveDirection.None:
 					break;
 				case MoveDirection.Left:
-					if (stateRef.CurrentPiece.PosX > 0)
+					if (stateRef.CurrentPiece is { PosX: > 0 })
 						stateRef.CurrentPiece.PosX--;
 					break;
 				case MoveDirection.Right:
+					if (stateRef.CurrentPiece == null) break;
+					
 					var maxRight = GridSizeX + stateRef.CurrentPiece.OpenColumnsFromRight();
 
 					if (stateRef.CurrentPiece.PosX < maxRight - 1)
@@ -33,7 +49,6 @@ namespace Perfectris.Core.Logic
 			}
 		}
 
-
 		/// <summary>
 		/// Applies gravity once
 		/// </summary>
@@ -41,16 +56,16 @@ namespace Perfectris.Core.Logic
 		{
 			ref var stateRef = ref loop.State.Get();
 
-			if (stateRef.GravityTickTimer > 0) // Deal with what to do if gravity is paused
+			if (stateRef.Timers.GravityPause > 0) // Deal with what to do if gravity is paused
 			{
-				stateRef.GravityTickTimer--;
-				stateRef.GravityTickOffset++;
+				stateRef.Timers.GravityPause--;
+				stateRef.GravityPauseOffset++;
 				return;
 			}
 
 			var (_, cellsToMove) = GravityToTicks(GetGravity(stateRef.Level, softDrop));
 
-			stateRef.CurrentPiece.PosY += cellsToMove;
+			if (stateRef.CurrentPiece != null) stateRef.CurrentPiece.PosY += cellsToMove;
 		}
 
 		/// <summary>
@@ -85,6 +100,7 @@ namespace Perfectris.Core.Logic
 		{
 			ref var stateRef = ref loop.State.Get();
 
+			if (stateRef.CurrentPiece == null) return;
 			var pieceType = stateRef.CurrentPiece.Type;
 			var pieceInGrid = stateRef.CurrentPiece.GetInGrid(GridSizeX, GridSizeY)
 									  .Select(row => row.Select(cell => cell ? pieceType : (TetrominoType?) null)
@@ -94,6 +110,11 @@ namespace Perfectris.Core.Logic
 			var combined = stack.CombineGrids(pieceInGrid, (cell1, cell2) => cell1 ?? cell2);
 
 			stateRef.Stack = combined;
+		}
+
+		private void RunSpawn(GameLoop<GameStateWrapper> loop)
+		{
+			
 		}
 	}
 }

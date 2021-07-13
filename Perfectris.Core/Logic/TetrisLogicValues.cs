@@ -92,5 +92,10 @@ namespace Perfectris.Core.Logic
 		/// How many ticks to lock down a piece
 		/// </summary>
 		public int LockDelay;
+
+		/// <summary>
+		/// How many ticks after lockdown or line clear to spawn another piece
+		/// </summary>
+		public int SpawnDelay;
 	}
 }

@@ -6,6 +6,17 @@ namespace Perfectris.Core.Logic
 	public partial class TetrisLogic
 	{
 		/// <summary>
+		/// Checks if we need to wait for something
+		/// </summary>
+		private static bool CheckWait(GameLoop<GameStateWrapper> loop, out WaitingState waitingState)
+		{
+			ref var stateRef = ref loop.State.Get();
+			waitingState = stateRef.WaitingState;
+			
+			return stateRef.Timers.SpawnWait != 0;
+		}
+		
+		/// <summary>
 		/// Checks if a piece should be moved via DAS or manually this tick
 		/// </summary>
 		private bool CheckMove(GameLoop<GameStateWrapper> loop)
@@ -28,9 +39,10 @@ namespace Perfectris.Core.Logic
 		{
 			ref var stateRef = ref loop.State.Get();
 
-			var ticksNoOffset = loop.CurrentTick - stateRef.GravityTickOffset;
+			var ticksNoOffset = loop.CurrentTick - stateRef.GravityPauseOffset;
 
 			var (ticksPerMove, _) = GravityToTicks(GetGravity(stateRef.Level, softDrop));
+			
 			return ticksNoOffset % ticksPerMove == 0; // See the return statement on CheckMove for why this works
 		}
 
@@ -41,7 +53,11 @@ namespace Perfectris.Core.Logic
 		{
 			ref var stateRef = ref loop.State.Get();
 
-			var maxDown = GridSizeX - stateRef.CurrentPiece.Grid.Length + stateRef.CurrentPiece.OpenRowsFromBottom();
+			if (stateRef.CurrentPiece == null)
+				return false;
+			
+			var maxDown = GridSizeX - stateRef.CurrentPiece.Grid.Length +
+						  stateRef.CurrentPiece.OpenRowsFromBottom();
 
 			var isTouchingFloor = maxDown == 0;
 
@@ -58,14 +74,25 @@ namespace Perfectris.Core.Logic
 
 			if (!isTouchingFloor) return false;
 
-			if (stateRef.LockDownTimer == 0)
+			if (stateRef.Timers.LockDown == 0)
 			{
-				stateRef.LockDownTimer = LockdownTime;
+				stateRef.Timers.LockDown  = LockdownTime;
+				stateRef.Timers.SpawnWait = SpawnDelay;
+				stateRef.WaitingState     = WaitingState.WaitingForSpawn;
 				return true;
 			}
 
-			stateRef.LockDownTimer--;
+			stateRef.Timers.LockDown--;
 			return false;
+		}
+
+		/// <summary>
+		/// Checks if we should spawn a piece
+		/// </summary>
+		private bool CheckSpawn(GameLoop<GameStateWrapper> loop)
+		{
+			ref var stateRef = ref loop.State.Get();
+			return stateRef.WaitingState == WaitingState.WaitingForSpawn && stateRef.Timers.SpawnWait == 0 ;
 		}
 	}
 }

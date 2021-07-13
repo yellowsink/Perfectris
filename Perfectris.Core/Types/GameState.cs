@@ -13,17 +13,12 @@ namespace Perfectris.Core.Types
 		/// <summary>
 		/// If something temporarily pauses gravity, this will be incremented that many ticks
 		/// </summary>
-		public int GravityTickOffset = 0;
+		public int GravityPauseOffset = 0;
 
 		/// <summary>
-		/// Counts down to add to offset when you want to pause - here to make pausing gravity much easier
+		/// Counts down various things
 		/// </summary>
-		public int GravityTickTimer = 0;
-
-		/// <summary>
-		/// How many ticks left until the piece locks down
-		/// </summary>
-		public int LockDownTimer = 0;
+		internal GameStateTimers Timers = new();
 
 		/// <summary>
 		/// Has the player used Hold this turn?
@@ -49,6 +44,31 @@ namespace Perfectris.Core.Types
 		/// </summary>
 		public int Level = 1;
 
-		public Tetromino CurrentPiece = null!;
+		public Tetromino? CurrentPiece = null;
+
+		public WaitingState WaitingState = WaitingState.NotWaiting;
+
+		
+		public class GameStateTimers
+		{
+			/// <summary>
+			/// Counts down to add to offset when you want to pause gravity
+			/// </summary>
+			public int GravityPause = 0;
+			/// <summary>
+			/// Counts down until piece locks down
+			/// </summary>
+			public int LockDown = 0;
+			/// <summary>
+			/// Counts down to next spawn
+			/// </summary>
+			public int SpawnWait = 0;
+		}
+	}
+
+	public enum WaitingState
+	{
+		NotWaiting,
+		WaitingForSpawn
 	}
 }
